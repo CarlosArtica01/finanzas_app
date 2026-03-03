@@ -10,8 +10,6 @@ class UseCasesView extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color colorMarca = const Color(0xFF00236B);
     
-    // En una app real, aquí usarías Provider.of o context.read
-    // Por ahora, instanciamos para obtener los datos estáticos del controlador
     final controller = FinanceController(); 
 
     return Scaffold(
@@ -86,8 +84,6 @@ class UseCasesView extends StatelessWidget {
       ),
     );
 
-    // 2. Navegación enviando el objeto 'caso' a la calculadora
-    // Esto disparará el initState de SimpleInterestView y llenará los campos
     Navigator.push(
       context,
       MaterialPageRoute(

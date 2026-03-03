@@ -6,6 +6,14 @@ enum AccountType { efectivo, banco, ahorros }
 enum TransactionType { ingreso, gasto }
 
 class FinanceController extends ChangeNotifier {
+
+  String _userName = "Usuario SYAC";
+  String get userName => _userName;
+
+  void updateUserName(String newName) {
+    _userName = newName;
+    notifyListeners();
+  }
   // --- PARTE 1: CÁLCULOS DE INTERÉS ---
   double _interestGenerated = 0.0;
   double _totalAmountCalculated = 0.0;

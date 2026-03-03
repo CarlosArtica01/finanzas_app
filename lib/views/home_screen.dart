@@ -3,7 +3,7 @@ import 'dashboard_view.dart';
 import 'reports_screen.dart';
 import 'budget_view.dart';
 import 'use_cases_view.dart';
-import 'widgets/add_transaction_modal.dart'; // El modal que creamos
+import 'widgets/add_transaction_modal.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,20 +16,19 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final Color colorMarca = const Color(0xFF00236B);
-  final Color colorAccion = const Color(0xFF00C853); // Verde SYAC
+  final Color colorAccion = const Color(0xFF00C853);
 
-  // Lista de las vistas reales integradas
+  // Lista de las vistas integradas
   final List<Widget> _pages = [
     const DashboardView(),   // 0: Inicio
-    const UseCasesView(),    // 1: Casos de Uso / Plantillas
-    const BudgetView(),      // 2: Billetera y Cuentas
+    const UseCasesView(),    // 1: Casos de Uso
+    const BudgetView(),      // 2: Cuentas
     const ReportsScreen(),   // 3: Gráficos y Reportes
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // IndexedStack mantiene el estado de cada pestaña (no se borran los datos al cambiar)
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
@@ -48,11 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(), // Crea el hueco para el botón
+        shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
         clipBehavior: Clip.antiAlias,
         child: BottomNavigationBar(
-          elevation: 0, // Quitamos la elevación para que use la del BottomAppBar
+          elevation: 0,
           backgroundColor: Colors.transparent,
           currentIndex: _selectedIndex,
           onTap: (index) => setState(() => _selectedIndex = index),
