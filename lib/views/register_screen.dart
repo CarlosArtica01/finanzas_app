@@ -48,7 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             _buildField(_authController.lastNameController, "Apellido", Icons.person_outline),
             const SizedBox(height: 15),
             
-            // Selector de Fecha profesional
+            // Selector de Fecha
             GestureDetector(
               onTap: () async {
                 DateTime? picked = await showDatePicker(

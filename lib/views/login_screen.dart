@@ -29,16 +29,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // --- NUEVA LÓGICA DE VALIDACIÓN ---
   void _handleLogin() {
-    // Usamos el método de validación que creamos en el AuthController
     final String? errorMessage = _authController.validateLogin();
 
     if (errorMessage == null) {
-      // Si no hay error, navegamos al Home
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      // Si hay error, mostramos el SnackBar con el estilo de la paleta
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(errorMessage),
@@ -179,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: _handleLogin, // <--- CAMBIO AQUÍ
+                  onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _palette['cta'],
                     foregroundColor: Colors.white,
