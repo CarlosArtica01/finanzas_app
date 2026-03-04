@@ -7,14 +7,17 @@ class BudgetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color colorMarca = const Color(0xFF00236B);
+    // Obtenemos el tema actual para adaptabilidad automática
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8FA),
+      // Usamos el color de fondo definido en el tema
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text("Mi Cartera", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        foregroundColor: colorMarca,
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        foregroundColor: colorScheme.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -24,77 +27,30 @@ class BudgetView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
+              
               // --- SECCIÓN DE CUENTAS ---
-              SizedBox(
-                height: 120,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: [
-                    _buildAccountCard("Efectivo", finance.saldoEfectivo, Colors.green),
-                    _buildAccountCard("Banco", finance.saldoBanco, Colors.blue),
-                    _buildAccountCard("Ahorros", finance.saldoAhorros, Colors.orange),
-                  ],
-                ),
-              ),
+              _buildAccountsHeader(finance),
 
-              const Padding(
-                padding: EdgeInsets.all(20),
+              Padding(
+                padding: const EdgeInsets.all(20),
                 child: Text(
                   "Movimientos Recientes",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
 
               // --- LISTA DE MOVIMIENTOS ---
               Expanded(
                 child: finance.movimientos.isEmpty
-                    ? _buildEmptyState()
+                    ? _buildEmptyState(theme)
                     : ListView.builder(
                         itemCount: finance.movimientos.length,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemBuilder: (context, index) {
                           final mov = finance.movimientos[index];
-                          final isGasto = mov['tipo'] == TransactionType.gasto;
-                          final bool tieneAlerta = mov['alerta'] ?? false; // Detectamos el sobregiro
-
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15),
-                              // Si tiene alerta de sobregiro, ponemos un borde sutil rojo
-                              border: tieneAlerta 
-                                ? Border.all(color: Colors.red.withOpacity(0.3)) 
-                                : null,
-                            ),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: (isGasto ? Colors.red : Colors.green).withOpacity(0.1),
-                                child: Icon(
-                                  isGasto ? Icons.arrow_downward : Icons.arrow_upward,
-                                  color: isGasto ? Colors.red : Colors.green,
-                                ),
-                              ),
-                              title: Row(
-                                children: [
-                                  Text(mov['titulo'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  if (tieneAlerta) ...[
-                                    const SizedBox(width: 8),
-                                    const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 18),
-                                  ]
-                                ],
-                              ),
-                              subtitle: Text("${mov['categoria']} • ${mov['cuenta']}"),
-                              trailing: Text(
-                                "${isGasto ? '-' : '+'} L. ${mov['monto'].toStringAsFixed(2)}",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isGasto ? Colors.red : Colors.green,
-                                ),
-                              ),
-                            ),
-                          );
+                          return _MovimientoItem(mov: mov);
                         },
                       ),
               ),
@@ -105,26 +61,66 @@ class BudgetView extends StatelessWidget {
     );
   }
 
-  // MÉTODO ACTUALIZADO: Cambia a rojo si el balance es negativo
-  Widget _buildAccountCard(String name, double balance, Color colorBase) {
+  // Abstracción de la lista horizontal de cuentas
+  Widget _buildAccountsHeader(FinanceController finance) {
+    return SizedBox(
+      height: 120,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        children: [
+          _AccountCard(name: "Efectivo", balance: finance.saldoEfectivo, colorBase: Colors.green),
+          _AccountCard(name: "Banco", balance: finance.saldoBanco, colorBase: Colors.blue),
+          _AccountCard(name: "Ahorros", balance: finance.saldoAhorros, colorBase: Colors.orange),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(ThemeData theme) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.account_balance_wallet_outlined, size: 80, color: theme.disabledColor),
+          const SizedBox(height: 10),
+          Text("No hay movimientos registrados", style: TextStyle(color: theme.disabledColor)),
+        ],
+      ),
+    );
+  }
+}
+
+// --- SUB-WIDGETS PARA MEJORAR EL MANTENIMIENTO ---
+
+class _AccountCard extends StatelessWidget {
+  final String name;
+  final double balance;
+  final Color colorBase;
+
+  const _AccountCard({required this.name, required this.balance, required this.colorBase});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final bool esNegativo = balance < 0;
-    final Color colorUI = esNegativo ? Colors.red : colorBase;
+    // En modo oscuro, usamos colores un poco más brillantes para visibilidad
+    final Color colorUI = esNegativo ? Colors.redAccent : colorBase;
 
     return Container(
       width: 160,
       margin: const EdgeInsets.only(right: 15),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
-        // El borde se vuelve rojo sólido si hay deuda
         border: Border.all(
           color: esNegativo ? Colors.red : colorUI.withOpacity(0.3), 
           width: esNegativo ? 2 : 1
         ),
         boxShadow: [
           BoxShadow(
-            color: colorUI.withOpacity(0.05), 
+            color: Colors.black.withOpacity(theme.brightness == Brightness.dark ? 0.2 : 0.05), 
             blurRadius: 10
           )
         ],
@@ -147,7 +143,7 @@ class BudgetView extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20, 
                 fontWeight: FontWeight.bold, 
-                color: esNegativo ? Colors.red : const Color(0xFF00236B)
+                color: esNegativo ? Colors.red : theme.colorScheme.onSurface
               ),
             ),
           ),
@@ -155,16 +151,61 @@ class BudgetView extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.account_balance_wallet_outlined, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 10),
-          const Text("No hay movimientos registrados", style: TextStyle(color: Colors.grey)),
-        ],
+class _MovimientoItem extends StatelessWidget {
+  final Map<String, dynamic> mov;
+  const _MovimientoItem({required this.mov});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isGasto = mov['tipo'] == TransactionType.gasto;
+    final bool tieneAlerta = mov['alerta'] ?? false;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(15),
+        border: tieneAlerta 
+          ? Border.all(color: Colors.red.withValues(alpha: 0.3)) 
+          : null,
+      ),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: (isGasto ? Colors.red : Colors.green).withValues(alpha: 0.1),
+          child: Icon(
+            isGasto ? Icons.arrow_downward : Icons.arrow_upward,
+            color: isGasto ? Colors.redAccent : Colors.greenAccent,
+          ),
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                mov['titulo'], 
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (tieneAlerta) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 18),
+            ]
+          ],
+        ),
+        subtitle: Text(
+          "${mov['categoria']} • ${mov['cuenta']}",
+          style: theme.textTheme.bodySmall,
+        ),
+        trailing: Text(
+          "${isGasto ? '-' : '+'} L. ${mov['monto'].toStringAsFixed(2)}",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isGasto ? Colors.redAccent : Colors.greenAccent,
+          ),
+        ),
       ),
     );
   }

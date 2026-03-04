@@ -12,17 +12,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final AuthController _authController = AuthController();
   bool _isPasswordVisible = false;
 
-  final Map<String, Color> _palette = {
-    'fondo': const Color(0xFFF8F8FA),
-    'superficie': const Color(0xFFFFFFFF),
-    'texto': const Color(0xFF121212),
-    'secundario': const Color(0xFF546E7A),
-    'marca': const Color(0xFF00236B),
-    'cta': const Color(0xFF0D47A1),
-    'positivo': const Color(0xFF00C853),
-    'logros': const Color(0xFFC8A959),
-  };
-
   @override
   void dispose() {
     _authController.dispose();
@@ -47,31 +36,29 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showResetPasswordDialog() {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Recuperar Contraseña", style: TextStyle(color: _palette['texto'])),
-        content: Text(
+        title: const Text("Recuperar Contraseña", style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text(
           "Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu acceso.",
-          style: TextStyle(color: _palette['texto']),
         ),
-        backgroundColor: _palette['superficie'],
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancelar", style: TextStyle(color: _palette['secundario'])),
+            child: Text("Cancelar", style: TextStyle(color: theme.disabledColor)),
           ),
           ElevatedButton(
             onPressed: () {
-              // Simulación de envío
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Enlace enviado con éxito")),
+                const SnackBar(content: Text("Enlace enviado con éxito"), behavior: SnackBarBehavior.floating),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: _palette['cta'],
+              backgroundColor: theme.colorScheme.primary,
               foregroundColor: Colors.white,
             ),
             child: const Text("Enviar Enlace"),
@@ -83,8 +70,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: _palette['fondo'],
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -93,50 +83,24 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 60),
               Text(
                 "Sistema SYAC",
-                style: TextStyle(
-                  color: _palette['marca'],
-                  fontSize: 32,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 "Calculadora Financiera",
-                style: TextStyle(
-                  color: _palette['secundario'],
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              // Logo / Icono central
-              Container(
-                height: 160,
-                width: 160,
-                decoration: BoxDecoration(
-                  color: _palette['superficie'],
-                  shape: BoxShape.circle,
-                  border: Border.all(color: _palette['marca']!, width: 4),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Image.asset(
-                      'assets/images/logo_syac.png',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
+                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
               ),
               const SizedBox(height: 40),
 
+              // --- LOGO CENTRAL CON IMAGEN ---
+              _buildLogo(colorScheme.primary, theme.cardColor),
+
+              const SizedBox(height: 50),
+
               _buildInputField(
+                context,
                 controller: _authController.emailController,
                 hint: "Correo Electrónico",
                 icon: Icons.email_outlined,
@@ -145,6 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
 
               _buildInputField(
+                context,
                 controller: _authController.passwordController,
                 hint: "Contraseña",
                 icon: Icons.lock_outline,
@@ -162,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text(
                     "¿Olvidaste tu contraseña?",
                     style: TextStyle(
-                      color: _palette['cta'],
+                      color: colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -170,47 +135,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Botón Iniciar Sesión (CONECTADO A LA VALIDACIÓN)
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _palette['cta'],
-                    foregroundColor: Colors.white,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: const Text(
-                    "Iniciar Sesión",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
+              // --- BOTONES DE ACCIÓN ---
+              _buildPrimaryButton(context, "Iniciar Sesión", _handleLogin),
               const SizedBox(height: 15),
-
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: _palette['positivo']!, width: 2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: Text(
-                    "Registrarse",
-                    style: TextStyle(
-                      color: _palette['positivo'],
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+              _buildSecondaryButton(context, "Registrarse", () {
+                Navigator.pushNamed(context, '/register');
+              }),
               const SizedBox(height: 30),
             ],
           ),
@@ -219,7 +149,40 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildInputField({
+  // MÉTODO MODIFICADO PARA CARGAR TU IMAGEN
+  Widget _buildLogo(Color primaryColor, Color cardColor) {
+    return Container(
+      height: 160, width: 160,
+      decoration: BoxDecoration(
+        color: Colors.white, // Fondo blanco para que el logo resalte
+        shape: BoxShape.circle,
+        border: Border.all(color: primaryColor, width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0), // Espacio para que el logo no toque los bordes
+          child: Image.asset(
+            'assets/images/logo_syac.png',
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              // Si la imagen no carga, mostramos el icono como respaldo
+              return Icon(Icons.account_balance, size: 80, color: primaryColor);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField(
+    BuildContext context, {
     required TextEditingController controller,
     required String hint,
     required IconData icon,
@@ -228,9 +191,10 @@ class _LoginScreenState extends State<LoginScreen> {
     VoidCallback? togglePassword,
     TextInputType keyboardType = TextInputType.text,
   }) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: _palette['superficie'],
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
@@ -244,22 +208,61 @@ class _LoginScreenState extends State<LoginScreen> {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
-        style: TextStyle(color: _palette['texto']),
+        style: theme.textTheme.bodyLarge,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: _palette['secundario']),
-          prefixIcon: Icon(icon, color: _palette['marca']),
+          hintStyle: const TextStyle(color: Colors.grey),
+          prefixIcon: Icon(icon, color: theme.colorScheme.primary),
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
                     obscureText ? Icons.visibility_off : Icons.visibility,
-                    color: _palette['secundario'],
+                    color: Colors.grey,
                   ),
                   onPressed: togglePassword,
                 )
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrimaryButton(BuildContext context, String text, VoidCallback onPressed) {
+    return SizedBox(
+      width: double.infinity,
+      height: 55,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          elevation: 2,
+        ),
+        child: Text(text, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildSecondaryButton(BuildContext context, String text, VoidCallback onPressed) {
+    return SizedBox(
+      width: double.infinity,
+      height: 55,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Colors.greenAccent.shade700, width: 2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: Colors.greenAccent.shade700,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

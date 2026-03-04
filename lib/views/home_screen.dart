@@ -15,56 +15,72 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final Color colorMarca = const Color(0xFF00236B);
-  final Color colorAccion = const Color(0xFF00C853);
-
-  // Lista de las vistas integradas
   final List<Widget> _pages = [
-    const DashboardView(),   // 0: Inicio
-    const UseCasesView(),    // 1: Casos de Uso
-    const BudgetView(),      // 2: Cuentas
-    const ReportsScreen(),   // 3: Gráficos y Reportes
+    const DashboardView(),   
+    const UseCasesView(),    
+    const BudgetView(),      
+    const ReportsScreen(),   
   ];
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
       ),
 
-      // BOTÓN FLOTANTE CENTRAL (PLUS)
+      // --- BOTÓN FLOTANTE CENTRAL (PLUS) ---
       floatingActionButton: FloatingActionButton(
+        heroTag: 'add_transaction_hero',
         onPressed: () => _showAddTransaction(context),
-        backgroundColor: colorAccion,
+        backgroundColor: colorScheme.secondary, 
         elevation: 4,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white, size: 32),
       ),
       
-      // Ubicación del botón en el centro de la barra inferior
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
+      // --- BARRA DE NAVEGACIÓN INFERIOR (CORREGIDA) ---
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
+        notchMargin: 6.0, // Reducido ligeramente para evitar tensiones de layout
         clipBehavior: Clip.antiAlias,
+        // Usamos una altura fija para evitar el error de 1.00 pixel
+        height: 70, 
+        padding: EdgeInsets.zero,
+        color: theme.bottomAppBarTheme.color ?? theme.cardColor,
         child: BottomNavigationBar(
           elevation: 0,
           backgroundColor: Colors.transparent,
           currentIndex: _selectedIndex,
           onTap: (index) => setState(() => _selectedIndex = index),
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: colorMarca,
-          unselectedItemColor: Colors.grey,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
+          selectedItemColor: colorScheme.primary,
+          unselectedItemColor: theme.disabledColor,
+          selectedFontSize: 11, // Reducido un punto para ganar espacio vertical
+          unselectedFontSize: 11,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Inicio"),
-            BottomNavigationBarItem(icon: Icon(Icons.auto_graph), label: "Simular"),
-            BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: "Cartera"),
-            BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "Reportes"),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_filled), 
+              label: "Inicio",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.auto_graph), 
+              label: "Simular",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.account_balance_wallet), 
+              label: "Cartera",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart), 
+              label: "Reportes",
+            ),
           ],
         ),
       ),
