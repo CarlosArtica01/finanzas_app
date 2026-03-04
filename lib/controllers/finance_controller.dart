@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path_provider/path_provider.dart'; // Necesario para guardar la imagen permanentemente
+import 'package:path_provider/path_provider.dart';
 import '../models/case_model.dart';
 
 enum AccountType { efectivo, banco, ahorros }
