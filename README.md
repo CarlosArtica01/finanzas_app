@@ -1,16 +1,16 @@
-# proyecto_final
+#  SYACAPI - Sistema Financiero
 
-A new Flutter project.
+API RESTful para el Sistema SYAC, una calculadora financiera con gestión de usuarios, cálculos de interés y seguimiento de metas.
 
-## Getting Started
+##  Requisitos Previos
 
-This project is a starting point for a Flutter application.
+- Node.js 14+
+- SQL Server 2019+
+- npm o yarn
 
-A few resources to get you started if this is your first Flutter project:
+##  Instalación
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/skarome/syacapi-server.git
+cd syacapi-server
